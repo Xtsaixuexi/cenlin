@@ -176,6 +176,9 @@ namespace FireboyAndWatergirl.Server
                 // 广播消息
                 await BroadcastServerMessage($"玩家 {player.Name} ({(assignedType == PlayerType.Ice ? "冰人" : "火人")}) 加入了游戏！");
 
+                // 广播大厅状态
+                await BroadcastLobbyStatus();
+
                 // 检查是否可以开始游戏
                 CheckAndStartGame();
 
@@ -213,6 +216,9 @@ namespace FireboyAndWatergirl.Server
                     _playerReady.TryRemove(player.Id, out _);
                     Log($"❌ 玩家 [{player.Name}] 已断开连接");
                     await BroadcastServerMessage($"玩家 {player.Name} 离开了游戏");
+                    
+                    // 广播大厅状态
+                    await BroadcastLobbyStatus();
                     
                     // 如果游戏正在进行，暂停游戏
                     if (_gameStarted)
@@ -275,6 +281,8 @@ namespace FireboyAndWatergirl.Server
                         string status = readyMsg.IsReady ? "已准备" : "取消准备";
                         await BroadcastServerMessage($"玩家 {player.Name} {status}");
                         Log($"👤 {player.Name} {status}");
+                        // 广播大厅状态
+                        await BroadcastLobbyStatus();
                     }
                     break;
 
@@ -544,6 +552,32 @@ namespace FireboyAndWatergirl.Server
         {
             var msg = new ServerMessagePacket(content);
             await BroadcastMessage(msg);
+        }
+
+        /// <summary>
+        /// 广播大厅状态
+        /// </summary>
+        private async Task BroadcastLobbyStatus()
+        {
+            var lobbyMsg = new LobbyStatusMessage
+            {
+                PlayerCount = _players.Count,
+                Players = new List<LobbyPlayerInfo>()
+            };
+
+            foreach (var player in _players.Values)
+            {
+                _playerReady.TryGetValue(player.Id, out bool isReady);
+                lobbyMsg.Players.Add(new LobbyPlayerInfo
+                {
+                    Id = player.Id,
+                    Name = player.Name,
+                    Type = player.Type,
+                    IsReady = isReady
+                });
+            }
+
+            await BroadcastMessage(lobbyMsg);
         }
 
         /// <summary>

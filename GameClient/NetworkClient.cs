@@ -24,6 +24,7 @@ namespace FireboyAndWatergirl.GameClient
         public event Action OnGameStart;
         public event Action OnDisconnected;
         public event Action<int> OnPlayerCountChanged;
+        public event Action<LobbyStatusMessage> OnLobbyStatus;
 
         public bool IsConnected => _isConnected;
         public PlayerType PlayerType => _playerType;
@@ -157,6 +158,14 @@ namespace FireboyAndWatergirl.GameClient
                     if (chatMsg != null)
                     {
                         OnChatMessage?.Invoke(chatMsg.SenderName, chatMsg.Content);
+                    }
+                    break;
+
+                case MessageType.LobbyStatus:
+                    var lobbyMsg = message as LobbyStatusMessage;
+                    if (lobbyMsg != null)
+                    {
+                        OnLobbyStatus?.Invoke(lobbyMsg);
                     }
                     break;
             }

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -24,6 +25,7 @@ namespace FireboyAndWatergirl.Shared
         GameRestart = 14,
         LevelSelect = 15,
         PlayerReady = 16,
+        LobbyStatus = 17,
 
         // 聊天
         ChatMessage = 20,
@@ -212,6 +214,30 @@ namespace FireboyAndWatergirl.Shared
     }
 
     /// <summary>
+    /// 大厅玩家信息
+    /// </summary>
+    [Serializable]
+    public class LobbyPlayerInfo
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public PlayerType Type { get; set; }
+        public bool IsReady { get; set; }
+    }
+
+    /// <summary>
+    /// 大厅状态消息 - 同步所有玩家状态
+    /// </summary>
+    [Serializable]
+    public class LobbyStatusMessage : NetworkMessage
+    {
+        public int PlayerCount { get; set; }
+        public List<LobbyPlayerInfo> Players { get; set; } = new List<LobbyPlayerInfo>();
+
+        public LobbyStatusMessage() : base(MessageType.LobbyStatus) { }
+    }
+
+    /// <summary>
     /// 网络协议帮助类
     /// </summary>
     public static class NetworkProtocol
@@ -274,6 +300,7 @@ namespace FireboyAndWatergirl.Shared
                 nameof(ServerMessagePacket) => typeof(ServerMessagePacket),
                 nameof(LevelSelectMessage) => typeof(LevelSelectMessage),
                 nameof(PlayerReadyMessage) => typeof(PlayerReadyMessage),
+                nameof(LobbyStatusMessage) => typeof(LobbyStatusMessage),
                 _ => typeof(NetworkMessage)
             };
 
