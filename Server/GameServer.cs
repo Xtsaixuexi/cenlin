@@ -257,10 +257,59 @@ namespace FireboyAndWatergirl.Server
                     await RestartGame();
                     break;
 
+                case MessageType.LevelSelect:
+                    var levelMsg = message as LevelSelectMessage;
+                    if (levelMsg != null)
+                    {
+                        await StartSpecificLevel(levelMsg.Level);
+                    }
+                    break;
+
                 case MessageType.Heartbeat:
                     player.LastHeartbeat = DateTime.UtcNow;
                     break;
             }
+        }
+
+        /// <summary>
+        /// 开始指定关卡
+        /// </summary>
+        private async Task StartSpecificLevel(int level)
+        {
+            if (_players.Count < 2)
+            {
+                await BroadcastServerMessage("需要两名玩家才能开始游戏！");
+                return;
+            }
+
+            lock (_gameLock)
+            {
+                // 限制关卡范围
+                level = Math.Max(1, Math.Min(level, LevelGenerator.TotalLevels));
+                
+                _gameState = LevelGenerator.CreateLevel(level);
+                
+                foreach (var p in _players.Values)
+                {
+                    if (p.Type == PlayerType.Ice)
+                        _gameState.IcePlayer.ConnectionId = p.Id;
+                    else
+                        _gameState.FirePlayer.ConnectionId = p.Id;
+                }
+
+                _icePlayerInput = PlayerAction.None;
+                _firePlayerInput = PlayerAction.None;
+                _gameStarted = true;
+            }
+
+            Log($"🎮 开始第 {level} 关");
+            await BroadcastServerMessage($"开始第 {level} 关！");
+
+            var startMsg = new GameStartMessage
+            {
+                InitialState = _gameState
+            };
+            await BroadcastMessage(startMsg);
         }
 
         /// <summary>

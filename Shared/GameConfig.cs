@@ -11,15 +11,15 @@ namespace FireboyAndWatergirl.Shared
         public const int HeartbeatIntervalMs = 5000;
         public const int ConnectionTimeoutMs = 10000;
 
-        // 游戏物理参数
-        public const float Gravity = 0.25f;        // 重力（降低，让跳跃更平滑）
-        public const float MoveSpeed = 0.35f;      // 移动速度（降低）
-        public const float JumpForce = -0.9f;      // 跳跃力度（负值向上）
-        public const float MaxFallSpeed = 1.0f;    // 最大下落速度
-        public const float Friction = 0.7f;        // 摩擦力（停止时减速）
+        // 游戏物理参数 - 优化版
+        public const float Gravity = 0.06f;        // 重力（大幅降低，让跳跃更平滑持久）
+        public const float MoveSpeed = 0.25f;      // 移动速度（降低，更容易控制）
+        public const float JumpForce = -0.8f;      // 跳跃力度（配合低重力，跳得更高）
+        public const float MaxFallSpeed = 0.6f;    // 最大下落速度（降低，下落更柔和）
+        public const float Friction = 0.85f;       // 摩擦力（提高，停止更平滑）
 
         // 游戏参数
-        public const int TickRate = 30;  // 每秒游戏更新次数
+        public const int TickRate = 60;  // 每秒游戏更新次数（提高到60，更丝滑）
         public const int TickIntervalMs = 1000 / TickRate;
 
         // 地图参数

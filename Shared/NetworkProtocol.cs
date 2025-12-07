@@ -22,6 +22,7 @@ namespace FireboyAndWatergirl.Shared
         GameStart = 12,
         GameOver = 13,
         GameRestart = 14,
+        LevelSelect = 15,
 
         // 聊天
         ChatMessage = 20,
@@ -178,6 +179,22 @@ namespace FireboyAndWatergirl.Shared
     }
 
     /// <summary>
+    /// 关卡选择消息
+    /// </summary>
+    [Serializable]
+    public class LevelSelectMessage : NetworkMessage
+    {
+        public int Level { get; set; }
+
+        public LevelSelectMessage() : base(MessageType.LevelSelect) { }
+
+        public LevelSelectMessage(int level) : this()
+        {
+            Level = level;
+        }
+    }
+
+    /// <summary>
     /// 网络协议帮助类
     /// </summary>
     public static class NetworkProtocol
@@ -238,6 +255,7 @@ namespace FireboyAndWatergirl.Shared
                 nameof(GameStartMessage) => typeof(GameStartMessage),
                 nameof(ChatMessagePacket) => typeof(ChatMessagePacket),
                 nameof(ServerMessagePacket) => typeof(ServerMessagePacket),
+                nameof(LevelSelectMessage) => typeof(LevelSelectMessage),
                 _ => typeof(NetworkMessage)
             };
 

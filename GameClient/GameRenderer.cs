@@ -533,6 +533,138 @@ namespace FireboyAndWatergirl.GameClient
         }
 
         /// <summary>
+        /// 渲染关卡选择菜单
+        /// </summary>
+        public void RenderMenu(Graphics g, Size panelSize, int selectedLevel, bool isConnected)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            
+            // 背景渐变
+            using (var brush = new LinearGradientBrush(
+                new Rectangle(0, 0, panelSize.Width, panelSize.Height),
+                Color.FromArgb(20, 30, 50), Color.FromArgb(40, 20, 30), 45f))
+            {
+                g.FillRectangle(brush, 0, 0, panelSize.Width, panelSize.Height);
+            }
+
+            // 装饰
+            DrawDecorativeIce(g, panelSize.Width * 0.1f, panelSize.Height * 0.2f, 50);
+            DrawDecorativeIce(g, panelSize.Width * 0.15f, panelSize.Height * 0.7f, 35);
+            DrawDecorativeFire(g, panelSize.Width * 0.9f, panelSize.Height * 0.2f, 50);
+            DrawDecorativeFire(g, panelSize.Width * 0.85f, panelSize.Height * 0.7f, 35);
+
+            // 标题
+            string title = "🔥 Fireboy and Watergirl 💧";
+            var titleSize = g.MeasureString(title, _titleFont);
+            float titleX = (panelSize.Width - titleSize.Width) / 2;
+            float titleY = panelSize.Height * 0.08f;
+
+            using (var brush = new LinearGradientBrush(
+                new RectangleF(titleX, titleY, titleSize.Width, titleSize.Height),
+                Color.Orange, Color.Cyan, 0f))
+            {
+                g.DrawString(title, _titleFont, brush, titleX, titleY);
+            }
+
+            // 副标题
+            string subtitle = "选择关卡";
+            var subtitleSize = g.MeasureString(subtitle, _messageFont);
+            float subtitleX = (panelSize.Width - subtitleSize.Width) / 2;
+            using (var brush = new SolidBrush(Color.White))
+            {
+                g.DrawString(subtitle, _messageFont, brush, subtitleX, titleY + 50);
+            }
+
+            // 关卡按钮
+            string[] levelNames = {
+                "第1关 - 新手教学",
+                "第2关 - 危险区域",
+                "第3关 - 迷宫挑战",
+                "第4关 - 垂直攀登",
+                "第5关 - 终极挑战"
+            };
+
+            float buttonWidth = 280;
+            float buttonHeight = 50;
+            float buttonStartY = panelSize.Height * 0.25f;
+            float buttonSpacing = 60;
+            float buttonX = (panelSize.Width - buttonWidth) / 2;
+
+            for (int i = 0; i < 5; i++)
+            {
+                float buttonY = buttonStartY + i * buttonSpacing;
+                bool isSelected = (i + 1) == selectedLevel;
+
+                // 按钮背景
+                var buttonRect = new RectangleF(buttonX, buttonY, buttonWidth, buttonHeight);
+                
+                if (isSelected)
+                {
+                    // 选中状态 - 高亮
+                    using (var brush = new LinearGradientBrush(buttonRect,
+                        Color.FromArgb(80, 150, 220), Color.FromArgb(60, 100, 180), 90f))
+                    {
+                        g.FillRectangle(brush, buttonRect);
+                    }
+                    using (var pen = new Pen(Color.Cyan, 3))
+                    {
+                        g.DrawRectangle(pen, buttonX, buttonY, buttonWidth, buttonHeight);
+                    }
+                }
+                else
+                {
+                    // 未选中状态
+                    using (var brush = new SolidBrush(Color.FromArgb(50, 50, 70)))
+                    {
+                        g.FillRectangle(brush, buttonRect);
+                    }
+                    using (var pen = new Pen(Color.FromArgb(80, 80, 100), 1))
+                    {
+                        g.DrawRectangle(pen, buttonX, buttonY, buttonWidth, buttonHeight);
+                    }
+                }
+
+                // 关卡编号
+                string levelNum = $"{i + 1}";
+                using (var brush = new SolidBrush(isSelected ? Color.Yellow : Color.Orange))
+                {
+                    g.DrawString(levelNum, _titleFont, brush, buttonX + 15, buttonY + 8);
+                }
+
+                // 关卡名称
+                using (var brush = new SolidBrush(isSelected ? Color.White : Color.LightGray))
+                {
+                    g.DrawString(levelNames[i], _smallFont, brush, buttonX + 55, buttonY + 15);
+                }
+            }
+
+            // 操作提示
+            string hint1 = "按 1-5 选择关卡";
+            string hint2 = "按 Enter 开始游戏";
+            string hint3 = isConnected ? "✅ 已连接服务器" : "❌ 未连接服务器";
+
+            float hintY = buttonStartY + 5 * buttonSpacing + 30;
+            
+            using (var brush = new SolidBrush(Color.LightGray))
+            {
+                var hint1Size = g.MeasureString(hint1, _smallFont);
+                g.DrawString(hint1, _smallFont, brush, (panelSize.Width - hint1Size.Width) / 2, hintY);
+            }
+            
+            using (var brush = new SolidBrush(Color.Gold))
+            {
+                var hint2Size = g.MeasureString(hint2, _smallFont);
+                g.DrawString(hint2, _smallFont, brush, (panelSize.Width - hint2Size.Width) / 2, hintY + 25);
+            }
+
+            using (var brush = new SolidBrush(isConnected ? Color.LightGreen : Color.Red))
+            {
+                var hint3Size = g.MeasureString(hint3, _smallFont);
+                g.DrawString(hint3, _smallFont, brush, (panelSize.Width - hint3Size.Width) / 2, hintY + 55);
+            }
+        }
+
+        /// <summary>
         /// 释放资源
         /// </summary>
         public void Dispose()

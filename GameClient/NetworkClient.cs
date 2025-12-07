@@ -225,6 +225,27 @@ namespace FireboyAndWatergirl.GameClient
         }
 
         /// <summary>
+        /// 请求开始指定关卡
+        /// </summary>
+        public void RequestLevel(int level)
+        {
+            if (!_isConnected) return;
+
+            try
+            {
+                var levelMsg = new LevelSelectMessage(level);
+                lock (_streamLock)
+                {
+                    NetworkProtocol.SendMessage(_stream, levelMsg);
+                }
+            }
+            catch (Exception ex)
+            {
+                OnServerMessage?.Invoke($"发送关卡选择失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// 断开连接
         /// </summary>
         public void Disconnect()
