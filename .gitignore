@@ -1,0 +1,35 @@
+# 编译输出
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# 用户特定文件
+*.DotSettings.user
+*.rsuser
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# 调试文件
+*.log
+*.pdb
+
+# NuGet
+*.nupkg
+packages/
+
+# 测试结果
+TestResults/
+
+# 临时文件
+*.tmp
+*.temp
+~$*
