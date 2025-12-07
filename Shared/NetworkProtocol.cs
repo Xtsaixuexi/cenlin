@@ -26,6 +26,7 @@ namespace FireboyAndWatergirl.Shared
         LevelSelect = 15,
         PlayerReady = 16,
         LobbyStatus = 17,
+        CheatWin = 18,  // 作弊：一键通关
 
         // 聊天
         ChatMessage = 20,

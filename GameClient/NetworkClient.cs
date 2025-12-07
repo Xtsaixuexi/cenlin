@@ -277,6 +277,27 @@ namespace FireboyAndWatergirl.GameClient
         }
 
         /// <summary>
+        /// 作弊：一键通关
+        /// </summary>
+        public void CheatWin()
+        {
+            if (!_isConnected) return;
+
+            try
+            {
+                var cheatMsg = new NetworkMessage(MessageType.CheatWin);
+                lock (_streamLock)
+                {
+                    NetworkProtocol.SendMessage(_stream, cheatMsg);
+                }
+            }
+            catch (Exception ex)
+            {
+                OnServerMessage?.Invoke($"发送作弊指令失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// 断开连接
         /// </summary>
         public void Disconnect()

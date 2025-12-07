@@ -140,6 +140,7 @@ namespace FireboyAndWatergirl.GameClient
                        "火人(红): 躲避水池\n" +
                        "收集宝石后到达出口\n" +
                        "R: 重新开始  Esc: 返回\n" +
+                       "F1: 作弊-一键通关\n" +
                        "============================",
                 AutoSize = false,
                 TextAlign = ContentAlignment.TopLeft
@@ -265,8 +266,8 @@ namespace FireboyAndWatergirl.GameClient
             y += 105;
 
             // 游戏规则 - 固定高度
-            _rulesLabel.SetBounds(padding, y, controlWidth, 140);
-            y += 145;
+            _rulesLabel.SetBounds(padding, y, controlWidth, 155);
+            y += 160;
 
             // 按钮区域 - 两个按钮各占一半宽度
             int buttonWidth = (controlWidth - 10) / 2;
@@ -596,6 +597,16 @@ namespace FireboyAndWatergirl.GameClient
             }
 
             bool handled = false;
+
+            // F1作弊键 - 在任何游戏状态下都可用
+            if (e.KeyCode == Keys.F1 && _currentScreen == GameScreen.Playing)
+            {
+                _client.CheatWin();
+                AddMessage("[作弊] 一键通关！");
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                return;
+            }
 
             // 游戏中的移动控制
             if (_currentScreen == GameScreen.Playing)

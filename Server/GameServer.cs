@@ -288,7 +288,53 @@ namespace FireboyAndWatergirl.Server
                 case MessageType.Heartbeat:
                     player.LastHeartbeat = DateTime.UtcNow;
                     break;
+
+                case MessageType.CheatWin:
+                    // 作弊：一键通关
+                    await CheatWinLevel(player);
+                    break;
             }
+        }
+
+        /// <summary>
+        /// 作弊：一键通关当前关卡
+        /// </summary>
+        private async Task CheatWinLevel(ConnectedPlayer player)
+        {
+            if (_gameState == null || !_gameStarted)
+            {
+                await BroadcastServerMessage("游戏未开始，无法使用作弊！");
+                return;
+            }
+
+            lock (_gameLock)
+            {
+                // 收集所有宝石
+                if (_gameState.Map.Gems != null)
+                {
+                    foreach (var gem in _gameState.Map.Gems)
+                    {
+                        gem.Collected = true;
+                    }
+                }
+
+                // 让两个玩家都到达出口
+                if (_gameState.IcePlayer != null)
+                {
+                    _gameState.IcePlayer.ReachedExit = true;
+                }
+                if (_gameState.FirePlayer != null)
+                {
+                    _gameState.FirePlayer.ReachedExit = true;
+                }
+
+                // 设置胜利状态
+                _gameState.GameOver = true;
+                _gameState.Victory = true;
+            }
+
+            Log($"🎮 玩家 {player.Name} 使用了作弊：一键通关！");
+            await BroadcastServerMessage($"[作弊] {player.Name} 使用了一键通关！");
         }
 
         /// <summary>
