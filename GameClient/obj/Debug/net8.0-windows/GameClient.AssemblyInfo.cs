@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FireboyAndWatergirl.GameClient")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+cc798bb99de35a5b840278934f6692e05f5f4017")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+edd3d1301bfbaa098bdc1e0a0560c000c18e0278")]
 [assembly: System.Reflection.AssemblyProductAttribute("FireboyAndWatergirl.GameClient")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FireboyAndWatergirl.GameClient")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

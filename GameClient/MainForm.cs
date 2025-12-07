@@ -64,13 +64,13 @@ namespace FireboyAndWatergirl.GameClient
         private DoubleBufferedPanel _gamePanel;
         private Panel _sidePanel;
         private Label _statusLabel;
-        private Label _messageLabel;
         private ListBox _chatListBox;
         private TextBox _chatTextBox;
         private Button _readyButton;
         private Button _startButton;
         private Button _sendButton;
         private Label _chatLabel;
+        private Label _rulesLabel;
         
         // 输入状态
         private volatile bool _keyLeft = false;
@@ -83,7 +83,7 @@ namespace FireboyAndWatergirl.GameClient
         // 消息列表
         private List<string> _messages = new List<string>();
 
-        // 自己的准备状态
+        // 自己的准备状态 - 本地维护，不受服务器影响
         private bool _myReady = false;
 
         public MainForm()
@@ -97,7 +97,7 @@ namespace FireboyAndWatergirl.GameClient
             // 窗口设置
             this.Text = "🔥 Fireboy and Watergirl 💧 - 森林冰火人网络版";
             this.Size = new Size(1280, 800);
-            this.MinimumSize = new Size(900, 600);
+            this.MinimumSize = new Size(950, 650);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.DoubleBuffered = true;
             this.BackColor = Color.FromArgb(25, 25, 35);
@@ -120,16 +120,22 @@ namespace FireboyAndWatergirl.GameClient
             _statusLabel = new Label
             {
                 ForeColor = Color.White,
-                Font = new Font("Microsoft YaHei", 11, FontStyle.Bold),
-                Text = "连接中..."
+                Font = new Font("Microsoft YaHei", 10, FontStyle.Bold),
+                Text = "连接中...",
+                AutoSize = false
             };
 
-            // 消息标签
-            _messageLabel = new Label
+            // 游戏规则标签
+            _rulesLabel = new Label
             {
-                ForeColor = Color.Gold,
-                Font = new Font("Microsoft YaHei", 10),
-                Text = ""
+                ForeColor = Color.LightGray,
+                Font = new Font("Microsoft YaHei", 9),
+                Text = "📖 游戏规则:\n" +
+                       "• WASD/方向键 移动跳跃\n" +
+                       "• 💧冰人躲避火焰\n" +
+                       "• 🔥火人躲避水池\n" +
+                       "• 收集宝石到达出口",
+                AutoSize = false
             };
 
             // 准备按钮
@@ -139,22 +145,24 @@ namespace FireboyAndWatergirl.GameClient
                 BackColor = Color.FromArgb(60, 160, 60),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
-                Font = new Font("Microsoft YaHei", 12, FontStyle.Bold),
+                Font = new Font("Microsoft YaHei", 11, FontStyle.Bold),
                 Visible = false
             };
+            _readyButton.FlatAppearance.BorderSize = 0;
             _readyButton.Click += ReadyButton_Click;
 
             // 开始按钮
             _startButton = new Button
             {
                 Text = "🎮 开始游戏",
-                BackColor = Color.FromArgb(60, 120, 200),
+                BackColor = Color.FromArgb(100, 100, 120),
                 ForeColor = Color.White,
                 FlatStyle = FlatStyle.Flat,
                 Font = new Font("Microsoft YaHei", 11, FontStyle.Bold),
                 Visible = false,
                 Enabled = false
             };
+            _startButton.FlatAppearance.BorderSize = 0;
             _startButton.Click += StartButton_Click;
 
             // 聊天列表
@@ -162,7 +170,8 @@ namespace FireboyAndWatergirl.GameClient
             {
                 ForeColor = Color.LightGray,
                 Font = new Font("Microsoft YaHei", 9),
-                Text = "📝 消息:"
+                Text = "📝 消息:",
+                AutoSize = false
             };
 
             _chatListBox = new ListBox
@@ -170,7 +179,8 @@ namespace FireboyAndWatergirl.GameClient
                 BackColor = Color.FromArgb(25, 25, 35),
                 ForeColor = Color.LightGreen,
                 Font = new Font("Consolas", 9),
-                BorderStyle = BorderStyle.FixedSingle
+                BorderStyle = BorderStyle.FixedSingle,
+                IntegralHeight = false
             };
 
             // 聊天输入
@@ -182,19 +192,22 @@ namespace FireboyAndWatergirl.GameClient
                 BorderStyle = BorderStyle.FixedSingle
             };
             _chatTextBox.KeyPress += ChatTextBox_KeyPress;
+            _chatTextBox.Enter += (s, e) => { /* 获得焦点时不做特殊处理 */ };
 
             _sendButton = new Button
             {
                 Text = "发送",
                 BackColor = Color.FromArgb(60, 130, 200),
                 ForeColor = Color.White,
-                FlatStyle = FlatStyle.Flat
+                FlatStyle = FlatStyle.Flat,
+                Font = new Font("Microsoft YaHei", 9)
             };
+            _sendButton.FlatAppearance.BorderSize = 0;
             _sendButton.Click += (s, e) => SendChatMessage();
 
             // 添加控件到侧边面板
             _sidePanel.Controls.AddRange(new Control[] {
-                _statusLabel, _messageLabel, _readyButton, _startButton,
+                _statusLabel, _rulesLabel, _readyButton, _startButton,
                 _chatLabel, _chatListBox, _chatTextBox, _sendButton
             });
 
@@ -202,7 +215,7 @@ namespace FireboyAndWatergirl.GameClient
             this.Controls.Add(_gamePanel);
             this.Controls.Add(_sidePanel);
 
-            // 事件
+            // 事件 - 注意：只处理游戏面板上的按键
             this.KeyDown += MainForm_KeyDown;
             this.KeyUp += MainForm_KeyUp;
             this.FormClosing += MainForm_FormClosing;
@@ -212,7 +225,6 @@ namespace FireboyAndWatergirl.GameClient
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            // 初始布局
             UpdateLayout();
         }
 
@@ -223,7 +235,9 @@ namespace FireboyAndWatergirl.GameClient
 
         private void UpdateLayout()
         {
-            int sidePanelWidth = Math.Max(280, Math.Min(350, this.ClientSize.Width / 4));
+            if (this.ClientSize.Width < 100 || this.ClientSize.Height < 100) return;
+
+            int sidePanelWidth = Math.Max(260, Math.Min(320, this.ClientSize.Width / 4));
             int gamePanelWidth = this.ClientSize.Width - sidePanelWidth;
             int height = this.ClientSize.Height;
 
@@ -234,37 +248,37 @@ namespace FireboyAndWatergirl.GameClient
             _sidePanel.SetBounds(gamePanelWidth, 0, sidePanelWidth, height);
 
             // 侧边面板内部布局
-            int padding = 10;
+            int padding = 8;
             int controlWidth = sidePanelWidth - padding * 2;
             int y = padding;
 
             // 状态标签
-            _statusLabel.SetBounds(padding, y, controlWidth, 100);
-            y += 110;
+            _statusLabel.SetBounds(padding, y, controlWidth, 90);
+            y += 95;
 
-            // 消息标签
-            _messageLabel.SetBounds(padding, y, controlWidth, 50);
-            y += 60;
+            // 游戏规则
+            _rulesLabel.SetBounds(padding, y, controlWidth, 85);
+            y += 90;
 
             // 按钮区域
-            int buttonWidth = (controlWidth - 10) / 2;
-            _readyButton.SetBounds(padding, y, buttonWidth, 45);
-            _startButton.SetBounds(padding + buttonWidth + 10, y, buttonWidth, 45);
-            y += 55;
+            int buttonWidth = (controlWidth - 8) / 2;
+            _readyButton.SetBounds(padding, y, buttonWidth, 40);
+            _startButton.SetBounds(padding + buttonWidth + 8, y, buttonWidth, 40);
+            y += 48;
 
             // 聊天标签
-            _chatLabel.SetBounds(padding, y, controlWidth, 22);
-            y += 25;
+            _chatLabel.SetBounds(padding, y, controlWidth, 20);
+            y += 22;
 
             // 聊天列表 - 自适应剩余高度
-            int chatListHeight = height - y - 75;
-            _chatListBox.SetBounds(padding, y, controlWidth, Math.Max(100, chatListHeight));
-            y += Math.Max(100, chatListHeight) + 5;
+            int chatListHeight = height - y - 50;
+            _chatListBox.SetBounds(padding, y, controlWidth, Math.Max(80, chatListHeight));
+            y += Math.Max(80, chatListHeight) + 4;
 
             // 聊天输入区
-            int inputWidth = controlWidth - 75;
-            _chatTextBox.SetBounds(padding, y, inputWidth, 28);
-            _sendButton.SetBounds(padding + inputWidth + 5, y - 2, 65, 32);
+            int inputWidth = controlWidth - 55;
+            _chatTextBox.SetBounds(padding, y, inputWidth, 26);
+            _sendButton.SetBounds(padding + inputWidth + 4, y - 1, 50, 28);
         }
 
         private void InitializeGame()
@@ -280,11 +294,12 @@ namespace FireboyAndWatergirl.GameClient
             _client.OnGameStart += () => {
                 _currentScreen = GameScreen.Playing;
                 AddMessage("🎮 游戏开始！");
+                // 游戏开始后，重置准备状态
+                _myReady = false;
             };
             _client.OnGameStateUpdate += state => {
                 lock (_stateLock) { _gameState = state; }
                 
-                // 检查游戏结束
                 if (state.GameOver)
                 {
                     _currentScreen = GameScreen.GameOver;
@@ -299,8 +314,8 @@ namespace FireboyAndWatergirl.GameClient
                 UpdateUI();
             };
             _client.OnLobbyStatus += lobbyStatus => {
-                // 从服务器同步大厅状态
-                _lobbyPlayers = lobbyStatus.Players;
+                // 只更新玩家列表，不覆盖本地的准备状态
+                _lobbyPlayers = lobbyStatus.Players ?? new List<LobbyPlayerInfo>();
                 _playerCount = lobbyStatus.PlayerCount;
                 UpdateUI();
             };
@@ -342,6 +357,7 @@ namespace FireboyAndWatergirl.GameClient
             {
                 _currentScreen = GameScreen.Lobby;
                 _playerCount = 1;
+                _myReady = false; // 确保初始状态为未准备
                 string playerTypeStr = _client.PlayerType == PlayerType.Ice ? "💧 Watergirl" : "🔥 Fireboy";
                 AddMessage($"✅ 连接成功！你是 {playerTypeStr}");
                 UpdateUI();
@@ -356,13 +372,21 @@ namespace FireboyAndWatergirl.GameClient
         }
 
         /// <summary>
-        /// 检查对方是否准备
+        /// 检查对方是否准备 - 从服务器同步的数据中获取
         /// </summary>
         private bool IsOtherPlayerReady()
         {
-            if (_lobbyPlayers == null || _lobbyPlayers.Count < 2) return false;
+            if (_lobbyPlayers == null || _lobbyPlayers.Count < 2) 
+                return false;
             
-            var otherPlayer = _lobbyPlayers.FirstOrDefault(p => p.Id != _client.PlayerId);
+            // 找到不是自己的玩家
+            string myId = _client?.PlayerId;
+            if (string.IsNullOrEmpty(myId)) 
+                return false;
+
+            var otherPlayer = _lobbyPlayers.FirstOrDefault(p => 
+                !string.IsNullOrEmpty(p.Id) && p.Id != myId);
+            
             return otherPlayer?.IsReady ?? false;
         }
 
@@ -371,9 +395,16 @@ namespace FireboyAndWatergirl.GameClient
         /// </summary>
         private string GetOtherPlayerName()
         {
-            if (_lobbyPlayers == null || _lobbyPlayers.Count < 2) return "";
+            if (_lobbyPlayers == null || _lobbyPlayers.Count < 2) 
+                return "";
             
-            var otherPlayer = _lobbyPlayers.FirstOrDefault(p => p.Id != _client.PlayerId);
+            string myId = _client?.PlayerId;
+            if (string.IsNullOrEmpty(myId)) 
+                return "";
+
+            var otherPlayer = _lobbyPlayers.FirstOrDefault(p => 
+                !string.IsNullOrEmpty(p.Id) && p.Id != myId);
+            
             return otherPlayer?.Name ?? "";
         }
 
@@ -389,35 +420,47 @@ namespace FireboyAndWatergirl.GameClient
                 (_client.PlayerType == PlayerType.Ice ? "💧 Watergirl" : "🔥 Fireboy") : "";
 
             bool otherReady = IsOtherPlayerReady();
+            bool canStart = _myReady && otherReady && _playerCount >= 2;
 
             switch (_currentScreen)
             {
                 case GameScreen.Connecting:
                     _readyButton.Visible = false;
                     _startButton.Visible = false;
+                    _rulesLabel.Visible = false;
                     UpdateStatus("未连接\n请连接服务器", Color.Red);
                     break;
 
                 case GameScreen.Lobby:
                     _readyButton.Visible = true;
                     _startButton.Visible = true;
-                    _readyButton.Text = _myReady ? "❌ 取消准备" : "✋ 准备";
-                    _readyButton.BackColor = _myReady ? Color.FromArgb(180, 60, 60) : Color.FromArgb(60, 160, 60);
-                    _startButton.Enabled = _myReady && otherReady && _playerCount >= 2;
+                    _rulesLabel.Visible = true;
                     
-                    string status = $"你是: {playerType}\n";
-                    status += $"房间人数: {_playerCount}/2\n\n";
-                    status += $"你: {(_myReady ? "✅ 已准备" : "⏳ 未准备")}\n";
+                    // 更新准备按钮
+                    _readyButton.Text = _myReady ? "❌ 取消准备" : "✋ 准备";
+                    _readyButton.BackColor = _myReady ? 
+                        Color.FromArgb(180, 60, 60) : Color.FromArgb(60, 160, 60);
+                    
+                    // 更新开始按钮
+                    _startButton.Enabled = canStart;
+                    _startButton.BackColor = canStart ? 
+                        Color.FromArgb(60, 120, 200) : Color.FromArgb(80, 80, 100);
+                    
+                    // 状态文本
+                    string status = $"角色: {playerType}\n";
+                    status += $"房间: {_playerCount}/2 人\n\n";
+                    status += $"你: {(_myReady ? "✅已准备" : "⏳未准备")}\n";
+                    
                     if (_playerCount >= 2)
                     {
                         string otherName = GetOtherPlayerName();
-                        if (!string.IsNullOrEmpty(otherName))
-                            status += $"{otherName}: {(otherReady ? "✅ 已准备" : "⏳ 未准备")}";
-                        else
-                            status += $"对方: {(otherReady ? "✅ 已准备" : "⏳ 未准备")}";
+                        string displayName = string.IsNullOrEmpty(otherName) ? "对方" : otherName;
+                        status += $"{displayName}: {(otherReady ? "✅已准备" : "⏳未准备")}";
                     }
                     else
-                        status += "等待另一位玩家加入...";
+                    {
+                        status += "等待玩家加入...";
+                    }
                     
                     UpdateStatus(status, Color.LightGreen);
                     break;
@@ -425,12 +468,14 @@ namespace FireboyAndWatergirl.GameClient
                 case GameScreen.LevelSelect:
                     _readyButton.Visible = false;
                     _startButton.Visible = false;
-                    UpdateStatus($"你是: {playerType}\n选择关卡: 按1-5\n按Enter确认", Color.Cyan);
+                    _rulesLabel.Visible = false;
+                    UpdateStatus($"角色: {playerType}\n\n按1-5选择关卡\n按Enter确认\n按Esc返回", Color.Cyan);
                     break;
 
                 case GameScreen.Playing:
                     _readyButton.Visible = false;
                     _startButton.Visible = false;
+                    _rulesLabel.Visible = false;
                     GameState state;
                     lock (_stateLock) { state = _gameState; }
                     if (state != null)
@@ -440,19 +485,20 @@ namespace FireboyAndWatergirl.GameClient
                         string fireStatus = state.FirePlayer?.IsAlive == true ? 
                             (state.FirePlayer.ReachedExit ? "✅" : "🏃") : "💀";
                         
-                        UpdateStatus($"你是: {playerType}\n" +
-                            $"关卡: {state.CurrentLevel}/{LevelGenerator.TotalLevels}\n\n" +
-                            $"💧 Watergirl: {iceStatus} 💎{state.IcePlayer?.GemsCollected ?? 0}\n" +
-                            $"🔥 Fireboy: {fireStatus} 💎{state.FirePlayer?.GemsCollected ?? 0}",
+                        UpdateStatus($"角色: {playerType}\n" +
+                            $"关卡: {state.CurrentLevel}\n\n" +
+                            $"💧冰人: {iceStatus}\n" +
+                            $"🔥火人: {fireStatus}",
                             Color.LightGreen);
                     }
                     break;
 
                 case GameScreen.GameOver:
                     _readyButton.Visible = true;
-                    _readyButton.Text = "🔄 再来一局";
+                    _readyButton.Text = "🔄 返回大厅";
                     _readyButton.BackColor = Color.FromArgb(200, 120, 60);
                     _startButton.Visible = false;
+                    _rulesLabel.Visible = false;
                     break;
             }
         }
@@ -505,9 +551,18 @@ namespace FireboyAndWatergirl.GameClient
 
         private void MainForm_KeyDown(object sender, KeyEventArgs e)
         {
+            // 如果聊天框有焦点，不处理游戏按键
+            if (_chatTextBox.Focused)
+            {
+                return; // 让TextBox正常处理按键（包括退格、删除等）
+            }
+
+            bool handled = false;
+
             // 游戏中的移动控制
             if (_currentScreen == GameScreen.Playing)
             {
+                handled = true;
                 switch (e.KeyCode)
                 {
                     case Keys.A:
@@ -524,21 +579,23 @@ namespace FireboyAndWatergirl.GameClient
                         _keyJump = true;
                         break;
                     case Keys.R:
-                        // 重新开始
                         _client.RequestRestart();
                         AddMessage("🔄 请求重新开始...");
                         break;
                     case Keys.Escape:
-                        // 返回大厅
                         _currentScreen = GameScreen.Lobby;
                         _myReady = false;
                         UpdateUI();
+                        break;
+                    default:
+                        handled = false;
                         break;
                 }
             }
             // 关卡选择
             else if (_currentScreen == GameScreen.LevelSelect)
             {
+                handled = true;
                 switch (e.KeyCode)
                 {
                     case Keys.D1: case Keys.NumPad1: _selectedLevel = 1; break;
@@ -551,32 +608,48 @@ namespace FireboyAndWatergirl.GameClient
                         break;
                     case Keys.Escape:
                         _currentScreen = GameScreen.Lobby;
+                        _myReady = false;
                         UpdateUI();
+                        break;
+                    default:
+                        handled = false;
                         break;
                 }
             }
             // 游戏结束
             else if (_currentScreen == GameScreen.GameOver)
             {
-                if (e.KeyCode == Keys.R || e.KeyCode == Keys.Enter)
+                handled = true;
+                switch (e.KeyCode)
                 {
-                    _client.RequestRestart();
-                    _currentScreen = GameScreen.Playing;
-                }
-                else if (e.KeyCode == Keys.Escape)
-                {
-                    _currentScreen = GameScreen.Lobby;
-                    _myReady = false;
-                    UpdateUI();
+                    case Keys.R:
+                    case Keys.Enter:
+                        _client.RequestRestart();
+                        _currentScreen = GameScreen.Playing;
+                        break;
+                    case Keys.Escape:
+                        _currentScreen = GameScreen.Lobby;
+                        _myReady = false;
+                        UpdateUI();
+                        break;
+                    default:
+                        handled = false;
+                        break;
                 }
             }
 
-            e.Handled = true;
-            e.SuppressKeyPress = true;
+            if (handled)
+            {
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+            }
         }
 
         private void MainForm_KeyUp(object sender, KeyEventArgs e)
         {
+            // 如果聊天框有焦点，不处理
+            if (_chatTextBox.Focused) return;
+
             switch (e.KeyCode)
             {
                 case Keys.A:
@@ -599,13 +672,14 @@ namespace FireboyAndWatergirl.GameClient
         {
             if (_currentScreen == GameScreen.GameOver)
             {
-                // 再来一局
+                // 返回大厅
                 _currentScreen = GameScreen.Lobby;
                 _myReady = false;
                 UpdateUI();
                 return;
             }
 
+            // 切换准备状态
             _myReady = !_myReady;
             _client.SendReady(_myReady);
             AddMessage(_myReady ? "✅ 你已准备" : "❌ 取消准备");
@@ -615,11 +689,16 @@ namespace FireboyAndWatergirl.GameClient
         private void StartButton_Click(object sender, EventArgs e)
         {
             bool otherReady = IsOtherPlayerReady();
-            if (_myReady && otherReady && _playerCount >= 2)
+            
+            // 双重检查：必须双方都准备且有2人
+            if (!_myReady || !otherReady || _playerCount < 2)
             {
-                _currentScreen = GameScreen.LevelSelect;
-                UpdateUI();
+                AddMessage("⚠️ 需要双方都准备才能开始！");
+                return;
             }
+
+            _currentScreen = GameScreen.LevelSelect;
+            UpdateUI();
         }
 
         private void ChatTextBox_KeyPress(object sender, KeyPressEventArgs e)
@@ -639,7 +718,8 @@ namespace FireboyAndWatergirl.GameClient
                 _client.SendChat(msg);
                 _chatTextBox.Clear();
             }
-            this.Focus();
+            // 让游戏面板获得焦点以响应游戏按键
+            _gamePanel.Focus();
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
