@@ -23,6 +23,7 @@ namespace FireboyAndWatergirl.GameClient
         public event Action<GameState> OnGameStateUpdate;
         public event Action OnGameStart;
         public event Action OnDisconnected;
+        public event Action<int> OnPlayerCountChanged;
 
         public bool IsConnected => _isConnected;
         public PlayerType PlayerType => _playerType;
@@ -242,6 +243,27 @@ namespace FireboyAndWatergirl.GameClient
             catch (Exception ex)
             {
                 OnServerMessage?.Invoke($"发送关卡选择失败: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// 发送准备状态
+        /// </summary>
+        public void SendReady(bool isReady)
+        {
+            if (!_isConnected) return;
+
+            try
+            {
+                var readyMsg = new PlayerReadyMessage(isReady);
+                lock (_streamLock)
+                {
+                    NetworkProtocol.SendMessage(_stream, readyMsg);
+                }
+            }
+            catch (Exception ex)
+            {
+                OnServerMessage?.Invoke($"发送准备状态失败: {ex.Message}");
             }
         }
 

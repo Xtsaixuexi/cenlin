@@ -32,6 +32,7 @@ namespace FireboyAndWatergirl.Server
         private readonly int _port;
         private bool _isRunning;
         private readonly ConcurrentDictionary<string, ConnectedPlayer> _players = new();
+        private readonly ConcurrentDictionary<string, bool> _playerReady = new();
         private readonly object _gameLock = new();
         
         private GameState _gameState;
@@ -209,6 +210,7 @@ namespace FireboyAndWatergirl.Server
                 if (player != null)
                 {
                     _players.TryRemove(player.Id, out _);
+                    _playerReady.TryRemove(player.Id, out _);
                     Log($"❌ 玩家 [{player.Name}] 已断开连接");
                     await BroadcastServerMessage($"玩家 {player.Name} 离开了游戏");
                     
@@ -262,6 +264,17 @@ namespace FireboyAndWatergirl.Server
                     if (levelMsg != null)
                     {
                         await StartSpecificLevel(levelMsg.Level);
+                    }
+                    break;
+
+                case MessageType.PlayerReady:
+                    var readyMsg = message as PlayerReadyMessage;
+                    if (readyMsg != null)
+                    {
+                        _playerReady[player.Id] = readyMsg.IsReady;
+                        string status = readyMsg.IsReady ? "已准备" : "取消准备";
+                        await BroadcastServerMessage($"玩家 {player.Name} {status}");
+                        Log($"👤 {player.Name} {status}");
                     }
                     break;
 

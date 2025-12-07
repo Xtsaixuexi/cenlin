@@ -23,6 +23,7 @@ namespace FireboyAndWatergirl.Shared
         GameOver = 13,
         GameRestart = 14,
         LevelSelect = 15,
+        PlayerReady = 16,
 
         // 聊天
         ChatMessage = 20,
@@ -195,6 +196,22 @@ namespace FireboyAndWatergirl.Shared
     }
 
     /// <summary>
+    /// 玩家准备消息
+    /// </summary>
+    [Serializable]
+    public class PlayerReadyMessage : NetworkMessage
+    {
+        public bool IsReady { get; set; }
+
+        public PlayerReadyMessage() : base(MessageType.PlayerReady) { }
+
+        public PlayerReadyMessage(bool isReady) : this()
+        {
+            IsReady = isReady;
+        }
+    }
+
+    /// <summary>
     /// 网络协议帮助类
     /// </summary>
     public static class NetworkProtocol
@@ -256,6 +273,7 @@ namespace FireboyAndWatergirl.Shared
                 nameof(ChatMessagePacket) => typeof(ChatMessagePacket),
                 nameof(ServerMessagePacket) => typeof(ServerMessagePacket),
                 nameof(LevelSelectMessage) => typeof(LevelSelectMessage),
+                nameof(PlayerReadyMessage) => typeof(PlayerReadyMessage),
                 _ => typeof(NetworkMessage)
             };
 

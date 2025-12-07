@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FireboyAndWatergirl.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+65d3884cece62e869b02291c8127f325778fc298")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f82de7cf872f7388dd4807bbf5fe977f35f65f0d")]
 [assembly: System.Reflection.AssemblyProductAttribute("FireboyAndWatergirl.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FireboyAndWatergirl.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -516,6 +516,205 @@ namespace FireboyAndWatergirl.GameClient
             }
         }
 
+        /// <summary>
+        /// 渲染等待大厅
+        /// </summary>
+        public void RenderLobby(Graphics g, Size panelSize, int playerCount, bool myReady, bool otherReady, 
+            PlayerType myType, string otherPlayerName)
+        {
+            g.SmoothingMode = SmoothingMode.AntiAlias;
+            
+            // 背景渐变
+            using (var brush = new LinearGradientBrush(
+                new Rectangle(0, 0, panelSize.Width, panelSize.Height),
+                Color.FromArgb(15, 25, 45), Color.FromArgb(35, 15, 35), 135f))
+            {
+                g.FillRectangle(brush, 0, 0, panelSize.Width, panelSize.Height);
+            }
+
+            // 装饰元素
+            DrawDecorativeIce(g, panelSize.Width * 0.08f, panelSize.Height * 0.15f, 60);
+            DrawDecorativeIce(g, panelSize.Width * 0.12f, panelSize.Height * 0.75f, 40);
+            DrawDecorativeFire(g, panelSize.Width * 0.92f, panelSize.Height * 0.15f, 60);
+            DrawDecorativeFire(g, panelSize.Width * 0.88f, panelSize.Height * 0.75f, 40);
+
+            float centerX = panelSize.Width / 2;
+            float startY = panelSize.Height * 0.08f;
+
+            // 大标题
+            string title = "🎮 游戏大厅";
+            var titleSize = g.MeasureString(title, _titleFont);
+            using (var brush = new LinearGradientBrush(
+                new RectangleF(centerX - titleSize.Width / 2, startY, titleSize.Width, titleSize.Height),
+                Color.Gold, Color.Orange, 0f))
+            {
+                g.DrawString(title, _titleFont, brush, centerX - titleSize.Width / 2, startY);
+            }
+
+            // 房间信息框
+            float boxWidth = 500;
+            float boxHeight = 350;
+            float boxX = centerX - boxWidth / 2;
+            float boxY = startY + 80;
+
+            // 绘制房间框背景
+            using (var brush = new SolidBrush(Color.FromArgb(40, 40, 60)))
+            {
+                g.FillRectangle(brush, boxX, boxY, boxWidth, boxHeight);
+            }
+            using (var pen = new Pen(Color.FromArgb(80, 150, 200), 2))
+            {
+                g.DrawRectangle(pen, boxX, boxY, boxWidth, boxHeight);
+            }
+
+            // 房间标题
+            string roomTitle = $"房间状态: {playerCount}/2 玩家";
+            var roomTitleSize = g.MeasureString(roomTitle, _messageFont);
+            using (var brush = new SolidBrush(Color.White))
+            {
+                g.DrawString(roomTitle, _messageFont, brush, centerX - roomTitleSize.Width / 2, boxY + 20);
+            }
+
+            // 分隔线
+            using (var pen = new Pen(Color.FromArgb(60, 100, 150), 1))
+            {
+                g.DrawLine(pen, boxX + 30, boxY + 60, boxX + boxWidth - 30, boxY + 60);
+            }
+
+            // 玩家1 (自己)
+            float player1Y = boxY + 80;
+            string myTypeStr = myType == PlayerType.Ice ? "💧 Watergirl" : "🔥 Fireboy";
+            string myStatus = myReady ? "✅ 已准备" : "⏳ 等待中";
+            
+            DrawPlayerCard(g, boxX + 30, player1Y, boxWidth - 60, 90, 
+                "你", myTypeStr, myStatus, myReady, myType == PlayerType.Ice);
+
+            // 玩家2 (对方)
+            float player2Y = player1Y + 110;
+            if (playerCount >= 2)
+            {
+                string otherTypeStr = myType == PlayerType.Ice ? "🔥 Fireboy" : "💧 Watergirl";
+                string otherStatus = otherReady ? "✅ 已准备" : "⏳ 等待中";
+                string otherName = string.IsNullOrEmpty(otherPlayerName) ? "玩家2" : otherPlayerName;
+                
+                DrawPlayerCard(g, boxX + 30, player2Y, boxWidth - 60, 90, 
+                    otherName, otherTypeStr, otherStatus, otherReady, myType != PlayerType.Ice);
+            }
+            else
+            {
+                // 等待玩家加入
+                DrawEmptyPlayerSlot(g, boxX + 30, player2Y, boxWidth - 60, 90);
+            }
+
+            // 操作提示
+            float hintY = boxY + boxHeight + 30;
+            
+            string hint1 = "点击右侧 [准备] 按钮准备游戏";
+            string hint2 = playerCount >= 2 && myReady && otherReady ? 
+                "✨ 两人都已准备，点击 [开始游戏] 开始！" : 
+                "等待所有玩家准备...";
+
+            using (var brush = new SolidBrush(Color.LightGray))
+            {
+                var hint1Size = g.MeasureString(hint1, _smallFont);
+                g.DrawString(hint1, _smallFont, brush, centerX - hint1Size.Width / 2, hintY);
+            }
+
+            using (var brush = new SolidBrush(playerCount >= 2 && myReady && otherReady ? Color.LightGreen : Color.Yellow))
+            {
+                var hint2Size = g.MeasureString(hint2, _smallFont);
+                g.DrawString(hint2, _smallFont, brush, centerX - hint2Size.Width / 2, hintY + 30);
+            }
+
+            // 动画点
+            string dots = new string('.', (int)(DateTime.Now.Millisecond / 250) % 4);
+            using (var brush = new SolidBrush(Color.Gray))
+            {
+                g.DrawString(dots, _messageFont, brush, centerX + 50, hintY + 25);
+            }
+        }
+
+        private void DrawPlayerCard(Graphics g, float x, float y, float width, float height,
+            string name, string type, string status, bool isReady, bool isIce)
+        {
+            // 卡片背景
+            Color bgColor = isReady ? 
+                Color.FromArgb(30, 80, 30) : Color.FromArgb(50, 50, 60);
+            Color borderColor = isIce ? 
+                Color.FromArgb(100, 180, 255) : Color.FromArgb(255, 150, 100);
+
+            using (var brush = new SolidBrush(bgColor))
+            {
+                g.FillRectangle(brush, x, y, width, height);
+            }
+            using (var pen = new Pen(borderColor, 2))
+            {
+                g.DrawRectangle(pen, x, y, width, height);
+            }
+
+            // 玩家图标
+            float iconSize = 50;
+            float iconX = x + 20;
+            float iconY = y + (height - iconSize) / 2;
+
+            if (isIce)
+            {
+                using (var brush = new LinearGradientBrush(
+                    new RectangleF(iconX, iconY, iconSize, iconSize),
+                    Color.Cyan, Color.DodgerBlue, 90f))
+                {
+                    g.FillEllipse(brush, iconX, iconY, iconSize, iconSize);
+                }
+            }
+            else
+            {
+                using (var brush = new LinearGradientBrush(
+                    new RectangleF(iconX, iconY, iconSize, iconSize),
+                    Color.Orange, Color.Red, 90f))
+                {
+                    g.FillEllipse(brush, iconX, iconY, iconSize, iconSize);
+                }
+            }
+
+            // 玩家名称
+            using (var brush = new SolidBrush(Color.White))
+            {
+                g.DrawString(name, _messageFont, brush, x + 90, y + 15);
+            }
+
+            // 角色类型
+            using (var brush = new SolidBrush(isIce ? Color.Cyan : Color.Orange))
+            {
+                g.DrawString(type, _smallFont, brush, x + 90, y + 40);
+            }
+
+            // 状态
+            using (var brush = new SolidBrush(isReady ? Color.LightGreen : Color.Yellow))
+            {
+                g.DrawString(status, _smallFont, brush, x + width - 100, y + 35);
+            }
+        }
+
+        private void DrawEmptyPlayerSlot(Graphics g, float x, float y, float width, float height)
+        {
+            // 虚线边框
+            using (var pen = new Pen(Color.FromArgb(80, 80, 100), 2))
+            {
+                pen.DashStyle = DashStyle.Dash;
+                g.DrawRectangle(pen, x, y, width, height);
+            }
+
+            // 等待文字
+            string waitText = "⏳ 等待玩家加入...";
+            var textSize = g.MeasureString(waitText, _messageFont);
+            using (var brush = new SolidBrush(Color.Gray))
+            {
+                g.DrawString(waitText, _messageFont, brush, 
+                    x + (width - textSize.Width) / 2, 
+                    y + (height - textSize.Height) / 2);
+            }
+        }
+
         private void DrawDecorativeFire(Graphics g, float x, float y, float size)
         {
             using (var brush = new SolidBrush(Color.FromArgb(60, 255, 100, 50)))
