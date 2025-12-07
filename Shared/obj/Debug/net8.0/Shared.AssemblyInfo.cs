@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FireboyAndWatergirl.Shared")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+edd3d1301bfbaa098bdc1e0a0560c000c18e0278")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b58827bf81f1b65aceeb1c06262c1da85255d082")]
 [assembly: System.Reflection.AssemblyProductAttribute("FireboyAndWatergirl.Shared")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FireboyAndWatergirl.Shared")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

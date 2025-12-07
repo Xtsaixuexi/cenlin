@@ -109,6 +109,7 @@ namespace FireboyAndWatergirl.GameClient
                 BackColor = Color.FromArgb(15, 15, 25),
             };
             _gamePanel.Paint += GamePanel_Paint;
+            _gamePanel.MouseClick += GamePanel_MouseClick;
 
             // 侧边面板
             _sidePanel = new Panel
@@ -466,10 +467,15 @@ namespace FireboyAndWatergirl.GameClient
                     break;
 
                 case GameScreen.LevelSelect:
-                    _readyButton.Visible = false;
-                    _startButton.Visible = false;
+                    _readyButton.Visible = true;
+                    _readyButton.Text = "⬅ 返回";
+                    _readyButton.BackColor = Color.FromArgb(100, 100, 120);
+                    _startButton.Visible = true;
+                    _startButton.Enabled = true;
+                    _startButton.Text = "▶ 开始";
+                    _startButton.BackColor = Color.FromArgb(60, 160, 60);
                     _rulesLabel.Visible = false;
-                    UpdateStatus($"角色: {playerType}\n\n按1-5选择关卡\n按Enter确认\n按Esc返回", Color.Cyan);
+                    UpdateStatus($"角色: {playerType}\n\n点击或按1-5选择\n双击或点开始", Color.Cyan);
                     break;
 
                 case GameScreen.Playing:
@@ -668,6 +674,42 @@ namespace FireboyAndWatergirl.GameClient
             }
         }
 
+        /// <summary>
+        /// 鼠标点击处理 - 用于关卡选择
+        /// </summary>
+        private void GamePanel_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (_currentScreen == GameScreen.LevelSelect)
+            {
+                // 计算关卡按钮位置
+                var size = _gamePanel.ClientSize;
+                float buttonWidth = 280;
+                float buttonHeight = 50;
+                float buttonStartY = size.Height * 0.25f;
+                float buttonSpacing = 60;
+                float buttonX = (size.Width - buttonWidth) / 2;
+
+                for (int i = 0; i < 5; i++)
+                {
+                    float buttonY = buttonStartY + i * buttonSpacing;
+                    var buttonRect = new RectangleF(buttonX, buttonY, buttonWidth, buttonHeight);
+                    
+                    if (buttonRect.Contains(e.Location))
+                    {
+                        _selectedLevel = i + 1;
+                        
+                        // 双击直接开始
+                        if (e.Clicks == 2)
+                        {
+                            _client.RequestLevel(_selectedLevel);
+                        }
+                        break;
+                    }
+                }
+                _gamePanel.Invalidate();
+            }
+        }
+
         private void ReadyButton_Click(object sender, EventArgs e)
         {
             if (_currentScreen == GameScreen.GameOver)
@@ -679,7 +721,15 @@ namespace FireboyAndWatergirl.GameClient
                 return;
             }
 
-            // 切换准备状态
+            if (_currentScreen == GameScreen.LevelSelect)
+            {
+                // 返回大厅
+                _currentScreen = GameScreen.Lobby;
+                UpdateUI();
+                return;
+            }
+
+            // 切换准备状态 (Lobby界面)
             _myReady = !_myReady;
             _client.SendReady(_myReady);
             AddMessage(_myReady ? "✅ 你已准备" : "❌ 取消准备");
@@ -688,6 +738,15 @@ namespace FireboyAndWatergirl.GameClient
 
         private void StartButton_Click(object sender, EventArgs e)
         {
+            // 关卡选择界面 - 开始游戏
+            if (_currentScreen == GameScreen.LevelSelect)
+            {
+                _client.RequestLevel(_selectedLevel);
+                AddMessage($"🎮 请求开始第 {_selectedLevel} 关...");
+                return;
+            }
+
+            // 大厅界面 - 进入关卡选择
             bool otherReady = IsOtherPlayerReady();
             
             // 双重检查：必须双方都准备且有2人

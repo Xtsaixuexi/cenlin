@@ -178,9 +178,8 @@ namespace FireboyAndWatergirl.Server
 
                 // 广播大厅状态
                 await BroadcastLobbyStatus();
-
-                // 检查是否可以开始游戏
-                CheckAndStartGame();
+                
+                // 注意：不自动开始游戏，等待玩家准备并选择关卡
 
                 // 接收玩家输入
                 while (_isRunning && player.IsConnected && !cancellationToken.IsCancellationRequested)
@@ -300,6 +299,23 @@ namespace FireboyAndWatergirl.Server
             if (_players.Count < 2)
             {
                 await BroadcastServerMessage("需要两名玩家才能开始游戏！");
+                return;
+            }
+
+            // 检查是否双方都准备好了
+            bool allReady = true;
+            foreach (var p in _players.Values)
+            {
+                if (!_playerReady.TryGetValue(p.Id, out bool isReady) || !isReady)
+                {
+                    allReady = false;
+                    break;
+                }
+            }
+
+            if (!allReady)
+            {
+                await BroadcastServerMessage("需要双方都准备才能开始游戏！");
                 return;
             }
 
