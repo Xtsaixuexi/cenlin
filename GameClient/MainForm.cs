@@ -132,10 +132,12 @@ namespace FireboyAndWatergirl.GameClient
                 ForeColor = Color.LightGray,
                 Font = new Font("Microsoft YaHei", 9),
                 Text = "📖 游戏规则:\n" +
-                       "• WASD/方向键 移动跳跃\n" +
-                       "• 💧冰人躲避火焰\n" +
-                       "• 🔥火人躲避水池\n" +
-                       "• 收集宝石到达出口",
+                       "• W/↑/空格 跳跃\n" +
+                       "• A/← 左移  D/→ 右移\n" +
+                       "• 💧冰人: 躲避🔥火焰\n" +
+                       "• 🔥火人: 躲避💧水池\n" +
+                       "• 收集宝石到达出口\n" +
+                       "• R 重新开始  Esc 返回",
                 AutoSize = false
             };
 
@@ -238,7 +240,7 @@ namespace FireboyAndWatergirl.GameClient
         {
             if (this.ClientSize.Width < 100 || this.ClientSize.Height < 100) return;
 
-            int sidePanelWidth = Math.Max(260, Math.Min(320, this.ClientSize.Width / 4));
+            int sidePanelWidth = Math.Max(280, Math.Min(350, this.ClientSize.Width / 4));
             int gamePanelWidth = this.ClientSize.Width - sidePanelWidth;
             int height = this.ClientSize.Height;
 
@@ -249,37 +251,40 @@ namespace FireboyAndWatergirl.GameClient
             _sidePanel.SetBounds(gamePanelWidth, 0, sidePanelWidth, height);
 
             // 侧边面板内部布局
-            int padding = 8;
+            int padding = 10;
             int controlWidth = sidePanelWidth - padding * 2;
             int y = padding;
 
-            // 状态标签
-            _statusLabel.SetBounds(padding, y, controlWidth, 90);
-            y += 95;
+            // 状态标签 - 根据窗口高度调整
+            int statusHeight = Math.Max(80, Math.Min(120, height / 7));
+            _statusLabel.SetBounds(padding, y, controlWidth, statusHeight);
+            y += statusHeight + 5;
 
-            // 游戏规则
-            _rulesLabel.SetBounds(padding, y, controlWidth, 85);
-            y += 90;
+            // 游戏规则 - 根据窗口高度调整
+            int rulesHeight = Math.Max(90, Math.Min(110, height / 6));
+            _rulesLabel.SetBounds(padding, y, controlWidth, rulesHeight);
+            y += rulesHeight + 5;
 
             // 按钮区域
-            int buttonWidth = (controlWidth - 8) / 2;
-            _readyButton.SetBounds(padding, y, buttonWidth, 40);
-            _startButton.SetBounds(padding + buttonWidth + 8, y, buttonWidth, 40);
-            y += 48;
+            int buttonWidth = (controlWidth - 10) / 2;
+            int buttonHeight = Math.Max(35, Math.Min(45, height / 18));
+            _readyButton.SetBounds(padding, y, buttonWidth, buttonHeight);
+            _startButton.SetBounds(padding + buttonWidth + 10, y, buttonWidth, buttonHeight);
+            y += buttonHeight + 8;
 
             // 聊天标签
             _chatLabel.SetBounds(padding, y, controlWidth, 20);
             y += 22;
 
             // 聊天列表 - 自适应剩余高度
-            int chatListHeight = height - y - 50;
-            _chatListBox.SetBounds(padding, y, controlWidth, Math.Max(80, chatListHeight));
-            y += Math.Max(80, chatListHeight) + 4;
+            int chatListHeight = height - y - 45;
+            _chatListBox.SetBounds(padding, y, controlWidth, Math.Max(60, chatListHeight));
+            y += Math.Max(60, chatListHeight) + 4;
 
             // 聊天输入区
-            int inputWidth = controlWidth - 55;
-            _chatTextBox.SetBounds(padding, y, inputWidth, 26);
-            _sendButton.SetBounds(padding + inputWidth + 4, y - 1, 50, 28);
+            int inputWidth = controlWidth - 60;
+            _chatTextBox.SetBounds(padding, y, inputWidth, 28);
+            _sendButton.SetBounds(padding + inputWidth + 5, y, 55, 28);
         }
 
         private void InitializeGame()
@@ -481,18 +486,18 @@ namespace FireboyAndWatergirl.GameClient
                 case GameScreen.Playing:
                     _readyButton.Visible = false;
                     _startButton.Visible = false;
-                    _rulesLabel.Visible = false;
+                    _rulesLabel.Visible = true;  // 游戏中也显示规则
                     GameState state;
                     lock (_stateLock) { state = _gameState; }
                     if (state != null)
                     {
                         string iceStatus = state.IcePlayer?.IsAlive == true ? 
-                            (state.IcePlayer.ReachedExit ? "✅" : "🏃") : "💀";
+                            (state.IcePlayer.ReachedExit ? "✅到达" : "🏃移动中") : "💀死亡";
                         string fireStatus = state.FirePlayer?.IsAlive == true ? 
-                            (state.FirePlayer.ReachedExit ? "✅" : "🏃") : "💀";
+                            (state.FirePlayer.ReachedExit ? "✅到达" : "🏃移动中") : "💀死亡";
                         
-                        UpdateStatus($"角色: {playerType}\n" +
-                            $"关卡: {state.CurrentLevel}\n\n" +
+                        UpdateStatus($"🎮 角色: {playerType}\n" +
+                            $"📍 关卡: 第{state.CurrentLevel}关\n\n" +
                             $"💧冰人: {iceStatus}\n" +
                             $"🔥火人: {fireStatus}",
                             Color.LightGreen);

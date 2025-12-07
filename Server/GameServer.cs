@@ -339,6 +339,12 @@ namespace FireboyAndWatergirl.Server
                 _gameStarted = true;
             }
 
+            // 游戏开始后重置准备状态
+            foreach (var p in _players.Values)
+            {
+                _playerReady[p.Id] = false;
+            }
+
             Log($"🎮 开始第 {level} 关");
             await BroadcastServerMessage($"开始第 {level} 关！");
 
@@ -347,6 +353,9 @@ namespace FireboyAndWatergirl.Server
                 InitialState = _gameState
             };
             await BroadcastMessage(startMsg);
+            
+            // 广播新的大厅状态（准备状态已重置）
+            await BroadcastLobbyStatus();
         }
 
         /// <summary>

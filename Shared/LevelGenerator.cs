@@ -155,98 +155,72 @@ namespace FireboyAndWatergirl.Shared
         }
 
         /// <summary>
-        /// 第3关 - 迷宫挑战
-        /// 复杂的迷宫布局
+        /// 第3关 - 合作挑战（简化版）
+        /// 需要两人配合通过
         /// </summary>
         public static GameState CreateLevel3()
         {
-            var map = new GameMap(45, 22, "第3关 - 迷宫挑战");
+            var map = new GameMap(40, 20, "第3关 - 合作挑战");
             CreateBorder(map);
 
             // 地面
             for (int x = 1; x < map.Width - 1; x++)
                 map.SetTile(x, map.Height - 2, TileType.Platform);
 
-            // 迷宫墙壁 - 创建复杂路径
-            // 第一层障碍
-            for (int x = 10; x < 15; x++)
-                map.SetTile(x, 17, TileType.Wall);
-            for (int x = 20; x < 25; x++)
-                map.SetTile(x, 17, TileType.Wall);
-            for (int x = 30; x < 35; x++)
-                map.SetTile(x, 17, TileType.Wall);
-
-            // 平台层
-            for (int x = 3; x < 10; x++)
+            // 简单的阶梯平台
+            // 左侧阶梯
+            for (int x = 3; x < 12; x++)
                 map.SetTile(x, 15, TileType.Platform);
-            for (int x = 15; x < 20; x++)
-                map.SetTile(x, 15, TileType.Platform);
-            for (int x = 25; x < 30; x++)
-                map.SetTile(x, 15, TileType.Platform);
-            for (int x = 35; x < 42; x++)
-                map.SetTile(x, 15, TileType.Platform);
-
-            // 第二层
-            for (int x = 8; x < 18; x++)
-                map.SetTile(x, 12, TileType.Platform);
-            for (int x = 27; x < 37; x++)
-                map.SetTile(x, 12, TileType.Platform);
-
+            
             // 中央平台
-            for (int x = 18; x < 27; x++)
-                map.SetTile(x, 10, TileType.Platform);
+            for (int x = 14; x < 26; x++)
+                map.SetTile(x, 13, TileType.Platform);
+            
+            // 右侧阶梯
+            for (int x = 28; x < 37; x++)
+                map.SetTile(x, 15, TileType.Platform);
 
-            // 顶层
-            for (int x = 5; x < 15; x++)
-                map.SetTile(x, 7, TileType.Platform);
-            for (int x = 30; x < 40; x++)
-                map.SetTile(x, 7, TileType.Platform);
+            // 顶层平台
+            for (int x = 8; x < 18; x++)
+                map.SetTile(x, 9, TileType.Platform);
+            for (int x = 22; x < 32; x++)
+                map.SetTile(x, 9, TileType.Platform);
 
-            // 最高层（出口）
-            for (int x = 17; x < 28; x++)
-                map.SetTile(x, 4, TileType.Platform);
+            // 出口平台
+            for (int x = 15; x < 25; x++)
+                map.SetTile(x, 5, TileType.Platform);
 
-            // 危险区域
-            for (int x = 13; x < 16; x++)
-                map.SetTile(x, map.Height - 2, TileType.Ice);
-            for (int x = 29; x < 32; x++)
-                map.SetTile(x, map.Height - 2, TileType.Fire);
-            map.SetTile(22, 10, TileType.Water);
-            map.SetTile(23, 10, TileType.Water);
+            // 简单的危险区域
+            map.SetTile(18, 13, TileType.Ice);  // 冰人专用
+            map.SetTile(21, 13, TileType.Fire); // 火人专用
 
-            // 宝石
+            // 宝石（减少数量）
             map.Gems = new List<GemPosition>
             {
-                new GemPosition(5, 14, PlayerType.Ice),
-                new GemPosition(38, 14, PlayerType.Fire),
-                new GemPosition(17, 14, PlayerType.Fire),
-                new GemPosition(27, 14, PlayerType.Ice),
-                new GemPosition(10, 11, PlayerType.Ice),
-                new GemPosition(34, 11, PlayerType.Fire),
-                new GemPosition(20, 9, PlayerType.Ice),
-                new GemPosition(25, 9, PlayerType.Fire),
-                new GemPosition(8, 6, PlayerType.Ice),
-                new GemPosition(12, 6, PlayerType.Fire),
-                new GemPosition(33, 6, PlayerType.Ice),
-                new GemPosition(37, 6, PlayerType.Fire),
-                new GemPosition(20, 3, PlayerType.Ice),
-                new GemPosition(24, 3, PlayerType.Fire),
+                new GemPosition(6, 14, PlayerType.Ice),
+                new GemPosition(33, 14, PlayerType.Fire),
+                new GemPosition(16, 12, PlayerType.Ice),
+                new GemPosition(23, 12, PlayerType.Fire),
+                new GemPosition(11, 8, PlayerType.Ice),
+                new GemPosition(28, 8, PlayerType.Fire),
+                new GemPosition(18, 4, PlayerType.Ice),
+                new GemPosition(21, 4, PlayerType.Fire),
             };
 
             foreach (var gem in map.Gems)
                 map.SetTile(gem.X, gem.Y, gem.ForPlayer == PlayerType.Ice ? TileType.IceGem : TileType.FireGem);
 
             // 出口
-            map.SetTile(19, 3, TileType.IceDoor);
-            map.SetTile(25, 3, TileType.FireDoor);
+            map.SetTile(17, 4, TileType.IceDoor);
+            map.SetTile(22, 4, TileType.FireDoor);
 
             return new GameState
             {
                 Map = map,
                 IcePlayer = new Player(PlayerType.Ice, 3, map.Height - 3),
-                FirePlayer = new Player(PlayerType.Fire, 41, map.Height - 3),
+                FirePlayer = new Player(PlayerType.Fire, 36, map.Height - 3),
                 CurrentLevel = 3,
-                Message = "第3关：穿越迷宫，到达顶部！"
+                Message = "第3关：合作通关！"
             };
         }
 
