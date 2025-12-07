@@ -1,4 +1,4 @@
-# ❄️ 森林冰火人网络版 🔥
+# 🔥 Fireboy and Watergirl 网络版 💧
 
 一个基于 C# TCP 网络编程的双人合作游戏，使用 TcpClient 和 TcpListener 实现网络通信。
 
@@ -6,9 +6,9 @@
 
 ## 🎮 游戏简介
 
-森林冰火人是一款经典的双人合作游戏：
-- **冰人** ❄️ - 蓝色角色，可以通过冰区域，但怕火
-- **火人** 🔥 - 红色角色，可以通过火区域，但怕冰
+Fireboy and Watergirl（森林冰火人）是一款经典的双人合作游戏：
+- **Watergirl (水女孩)** 💧 - 蓝色角色，可以通过水/冰区域，但怕火
+- **Fireboy (火男孩)** 🔥 - 红色角色，可以通过火区域，但怕水/冰
 - **目标** - 两人合作收集宝石，到达各自的出口门
 
 ## 📁 项目结构
@@ -36,7 +36,7 @@ cenlin/
 │   ├── ConnectDialog.cs    # 连接对话框
 │   └── GameClient.csproj
 │
-├── IceFireMan.sln          # Visual Studio 解决方案
+├── FireboyAndWatergirl.sln # Visual Studio 解决方案
 └── README.md
 ```
 
@@ -79,10 +79,16 @@ dotnet run
 
 ### 方法二：使用 Visual Studio
 
-1. 双击打开 `IceFireMan.sln`
+1. 双击打开 `FireboyAndWatergirl.sln`
 2. 右键解决方案 → 设置启动项目 → 多个启动项目
 3. 将 Server 和 GameClient 都设为"启动"
 4. 按 F5 运行
+
+### 方法三：使用批处理文件
+
+1. 双击 `启动服务器.bat` - 启动服务器
+2. 双击 `启动客户端.bat` - 启动玩家1
+3. 再次双击 `启动客户端.bat` - 启动玩家2
 
 ## 🎯 游戏控制
 
@@ -100,13 +106,13 @@ dotnet run
 ┌─────────────────┐         TCP          ┌─────────────────┐
 │   GameClient    │◄────────────────────►│                 │
 │   (WinForms)    │     TcpClient        │                 │
-│   玩家1 - 冰人   │                      │   GameServer    │
+│   Watergirl     │                      │   GameServer    │
 └─────────────────┘                      │  (TcpListener)  │
                                          │                 │
 ┌─────────────────┐         TCP          │   端口: 9527    │
 │   GameClient    │◄────────────────────►│                 │
 │   (WinForms)    │     TcpClient        │                 │
-│   玩家2 - 火人   │                      └─────────────────┘
+│   Fireboy       │                      └─────────────────┘
 └─────────────────┘
 ```
 
@@ -124,17 +130,17 @@ dotnet run
 
 | 符号 | 名称 | 说明 |
 |------|------|------|
-| `I` | 冰人 | 蓝色玩家角色 |
-| `F` | 火人 | 红色玩家角色 |
+| `I` | Watergirl | 蓝色玩家角色 |
+| `F` | Fireboy | 红色玩家角色 |
 | `█` | 墙壁 | 不可通过 |
 | `═` | 平台 | 可站立 |
-| `~` | 冰区域 | 只有冰人可通过 |
-| `^` | 火区域 | 只有火人可通过 |
-| `≈` | 水 | 两者都会死亡 |
-| `◆` | 冰宝石 | 冰人收集 |
-| `◇` | 火宝石 | 火人收集 |
-| `▣` | 冰门 | 冰人出口 |
-| `▢` | 火门 | 火人出口 |
+| `~` | 冰/水区域 | 只有Watergirl可通过 |
+| `^` | 火区域 | 只有Fireboy可通过 |
+| `≈` | 毒水 | 两者都会死亡 |
+| `◆` | 蓝宝石 | Watergirl收集 |
+| `◇` | 红宝石 | Fireboy收集 |
+| `▣` | 蓝门 | Watergirl出口 |
+| `▢` | 红门 | Fireboy出口 |
 
 ## 📝 开发说明
 
@@ -164,12 +170,6 @@ dotnet run
 
 MIT License - 可自由使用和修改
 
-## 🤝 贡献
-
-欢迎提交 Issue 和 Pull Request！
-
 ---
 
-**开发者**: AI Assistant  
 **技术栈**: C#, .NET 8.0, WinForms, TCP/IP
-

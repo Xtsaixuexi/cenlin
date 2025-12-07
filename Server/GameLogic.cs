@@ -1,7 +1,7 @@
 using System;
-using IceFireMan.Shared;
+using FireboyAndWatergirl.Shared;
 
-namespace IceFireMan.Server
+namespace FireboyAndWatergirl.Server
 {
     /// <summary>
     /// 游戏逻辑处理器
@@ -47,12 +47,13 @@ namespace IceFireMan.Server
             }
             else
             {
+                // 没有输入时逐渐减速
                 player.VelocityX *= GameConfig.Friction;
-                if (Math.Abs(player.VelocityX) < 0.1f)
+                if (Math.Abs(player.VelocityX) < 0.05f)
                     player.VelocityX = 0;
             }
 
-            // 处理跳跃
+            // 处理跳跃 - 只有在地面上才能跳跃
             if ((input & PlayerAction.Jump) != 0 && player.IsOnGround)
             {
                 player.VelocityY = GameConfig.JumpForce;
@@ -60,9 +61,12 @@ namespace IceFireMan.Server
             }
 
             // 应用重力
-            player.VelocityY += GameConfig.Gravity;
-            if (player.VelocityY > GameConfig.MaxFallSpeed)
-                player.VelocityY = GameConfig.MaxFallSpeed;
+            if (!player.IsOnGround)
+            {
+                player.VelocityY += GameConfig.Gravity;
+                if (player.VelocityY > GameConfig.MaxFallSpeed)
+                    player.VelocityY = GameConfig.MaxFallSpeed;
+            }
 
             // 计算新位置
             float newX = player.X + player.VelocityX;
@@ -71,6 +75,7 @@ namespace IceFireMan.Server
             // 水平碰撞检测
             if (!IsValidPosition(newX, player.Y, player, state))
             {
+                // 碰到墙壁，停止水平移动
                 newX = player.X;
                 player.VelocityX = 0;
             }
@@ -80,28 +85,32 @@ namespace IceFireMan.Server
             {
                 if (player.VelocityY > 0)
                 {
-                    // 落地 - 将玩家放在碰撞方块上方
+                    // 下落时碰到地面
                     player.IsOnGround = true;
-                    // 找到脚下的地面位置
-                    newY = (float)Math.Floor(player.Y + player.VelocityY);
-                    // 向上调整直到不再碰撞
+                    // 将玩家放在地面上
+                    newY = (float)Math.Floor(newY);
+                    // 微调确保不卡在地面里
                     while (!IsValidPosition(newX, newY, player, state) && newY > player.Y - 1)
                     {
-                        newY -= 0.1f;
+                        newY -= 0.05f;
                     }
                 }
-                else
+                else if (player.VelocityY < 0)
                 {
-                    // 撞到天花板
-                    newY = (float)Math.Ceiling(player.Y);
+                    // 向上跳跃时撞到天花板
+                    newY = player.Y;
                 }
                 player.VelocityY = 0;
             }
             else
             {
-                // 检查玩家脚下是否有地面（判断是否在空中）
-                bool groundBelow = !IsValidPosition(newX, newY + 0.1f, player, state);
-                player.IsOnGround = groundBelow && player.VelocityY >= 0;
+                // 没有碰撞，检查是否还在地面上
+                // 检测脚下一点点的位置是否有地面
+                bool stillOnGround = !IsValidPosition(newX, newY + 0.05f, player, state);
+                if (!stillOnGround)
+                {
+                    player.IsOnGround = false;
+                }
             }
 
             // 更新位置

@@ -4,9 +4,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 using System.Threading.Tasks;
-using IceFireMan.Shared;
+using FireboyAndWatergirl.Shared;
 
-namespace IceFireMan.GameClient
+namespace FireboyAndWatergirl.GameClient
 {
     /// <summary>
     /// 双缓冲面板 - 避免闪烁

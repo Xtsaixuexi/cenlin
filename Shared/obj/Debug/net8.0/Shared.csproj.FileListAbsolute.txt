@@ -1,0 +1,12 @@
+C:\Users\zhang\Desktop\cenlin\Shared\obj\Debug\net8.0\Shared.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\zhang\Desktop\cenlin\Shared\obj\Debug\net8.0\Shared.AssemblyInfoInputs.cache
+C:\Users\zhang\Desktop\cenlin\Shared\obj\Debug\net8.0\Shared.AssemblyInfo.cs
+C:\Users\zhang\Desktop\cenlin\Shared\obj\Debug\net8.0\Shared.csproj.CoreCompileInputs.cache
+C:\Users\zhang\Desktop\cenlin\Shared\obj\Debug\net8.0\Shared.sourcelink.json
+C:\Users\zhang\Desktop\cenlin\Shared\bin\Debug\net8.0\FireboyAndWatergirl.Shared.deps.json
+C:\Users\zhang\Desktop\cenlin\Shared\bin\Debug\net8.0\FireboyAndWatergirl.Shared.dll
+C:\Users\zhang\Desktop\cenlin\Shared\bin\Debug\net8.0\FireboyAndWatergirl.Shared.pdb
+C:\Users\zhang\Desktop\cenlin\Shared\obj\Debug\net8.0\FireboyAndWatergirl.Shared.dll
+C:\Users\zhang\Desktop\cenlin\Shared\obj\Debug\net8.0\refint\FireboyAndWatergirl.Shared.dll
+C:\Users\zhang\Desktop\cenlin\Shared\obj\Debug\net8.0\FireboyAndWatergirl.Shared.pdb
+C:\Users\zhang\Desktop\cenlin\Shared\obj\Debug\net8.0\ref\FireboyAndWatergirl.Shared.dll

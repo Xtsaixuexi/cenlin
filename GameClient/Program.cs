@@ -1,7 +1,7 @@
 using System;
 using System.Windows.Forms;
 
-namespace IceFireMan.GameClient
+namespace FireboyAndWatergirl.GameClient
 {
     static class Program
     {

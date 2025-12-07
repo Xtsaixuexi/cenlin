@@ -6,9 +6,8 @@
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
-    <RootNamespace>IceFireMan.GameClient</RootNamespace>
-    <AssemblyName>IceFireMan.GameClient</AssemblyName>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <RootNamespace>FireboyAndWatergirl.GameClient</RootNamespace>
+    <AssemblyName>FireboyAndWatergirl.GameClient</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

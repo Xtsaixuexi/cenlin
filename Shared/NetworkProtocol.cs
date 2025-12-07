@@ -3,7 +3,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 
-namespace IceFireMan.Shared
+namespace FireboyAndWatergirl.Shared
 {
     /// <summary>
     /// 消息类型枚举

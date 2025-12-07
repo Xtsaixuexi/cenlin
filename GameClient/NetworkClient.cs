@@ -1,9 +1,9 @@
 using System;
 using System.Net.Sockets;
 using System.Threading.Tasks;
-using IceFireMan.Shared;
+using FireboyAndWatergirl.Shared;
 
-namespace IceFireMan.GameClient
+namespace FireboyAndWatergirl.GameClient
 {
     /// <summary>
     /// 网络客户端 - 基于TcpClient

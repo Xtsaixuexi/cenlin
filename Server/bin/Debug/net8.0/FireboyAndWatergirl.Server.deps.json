@@ -1,0 +1,53 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v8.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v8.0": {
+      "FireboyAndWatergirl.Server/1.0.0": {
+        "dependencies": {
+          "FireboyAndWatergirl.Shared": "1.0.0",
+          "FireboyAndWatergirl.Shared.Reference": "1.0.0.0"
+        },
+        "runtime": {
+          "FireboyAndWatergirl.Server.dll": {}
+        }
+      },
+      "FireboyAndWatergirl.Shared/1.0.0": {
+        "runtime": {
+          "FireboyAndWatergirl.Shared.dll": {
+            "assemblyVersion": "1.0.0",
+            "fileVersion": ""
+          }
+        }
+      },
+      "FireboyAndWatergirl.Shared.Reference/1.0.0.0": {
+        "runtime": {
+          "FireboyAndWatergirl.Shared.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "FireboyAndWatergirl.Server/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FireboyAndWatergirl.Shared/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "FireboyAndWatergirl.Shared.Reference/1.0.0.0": {
+      "type": "reference",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

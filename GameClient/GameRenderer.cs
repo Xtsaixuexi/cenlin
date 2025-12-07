@@ -1,9 +1,9 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using IceFireMan.Shared;
+using FireboyAndWatergirl.Shared;
 
-namespace IceFireMan.GameClient
+namespace FireboyAndWatergirl.GameClient
 {
     /// <summary>
     /// 游戏图形渲染器

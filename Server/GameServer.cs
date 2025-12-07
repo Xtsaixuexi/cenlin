@@ -5,9 +5,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
-using IceFireMan.Shared;
+using FireboyAndWatergirl.Shared;
 
-namespace IceFireMan.Server
+namespace FireboyAndWatergirl.Server
 {
     /// <summary>
     /// 连接的玩家信息
@@ -318,9 +318,19 @@ namespace IceFireMan.Server
 
             lock (_gameLock)
             {
-                int currentLevel = _gameState?.Victory == true ? 
-                    Math.Min((_gameState.CurrentLevel + 1), 2) : 
-                    (_gameState?.CurrentLevel ?? 1);
+                int currentLevel;
+                if (_gameState?.Victory == true)
+                {
+                    // 通关后进入下一关，超过最大关卡则返回第1关
+                    currentLevel = _gameState.CurrentLevel + 1;
+                    if (currentLevel > LevelGenerator.TotalLevels)
+                        currentLevel = 1;
+                }
+                else
+                {
+                    // 失败则重玩当前关
+                    currentLevel = _gameState?.CurrentLevel ?? 1;
+                }
                 
                 _gameState = LevelGenerator.CreateLevel(currentLevel);
                 

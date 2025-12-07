@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace IceFireMan.Shared
+namespace FireboyAndWatergirl.Shared
 {
     /// <summary>
     /// 玩家类型枚举
@@ -64,7 +64,7 @@ namespace IceFireMan.Shared
         public char GetDisplayChar()
         {
             if (!IsAlive) return 'X';
-            return Type == PlayerType.Ice ? '❄' : '🔥';
+            return Type == PlayerType.Ice ? 'I' : 'F';
         }
 
         public ConsoleColor GetColor()

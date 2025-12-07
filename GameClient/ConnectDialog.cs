@@ -1,9 +1,9 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using IceFireMan.Shared;
+using FireboyAndWatergirl.Shared;
 
-namespace IceFireMan.GameClient
+namespace FireboyAndWatergirl.GameClient
 {
     /// <summary>
     /// 连接对话框
